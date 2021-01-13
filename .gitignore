@@ -1,0 +1,37 @@
+# Black-List Everyfile
+*.*
+
+#Except
+!.gitignore
+!*.exe
+
+#- C/Cpp files
+!*.c
+!*.cpp
+!*.C
+!*.cc
+!*.c++
+!*.cxx
+!*.cxx
+!*.inl
+
+#- header files
+!*.h
+!*.hpp
+
+#- dll/lib files
+!*.dll
+!*.lib
+
+#- txt/TXT files
+!*.txt
+!*.TXT
+
+#- C Archives .a files
+!*.a
+
+#- C Shared Obj .so files
+!*.so
+
+#- MarkDown .md files
+!*.md
