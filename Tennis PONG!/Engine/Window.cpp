@@ -54,7 +54,7 @@ int Window::Initialize(bool FULLSCREEN)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	size_t maxWidth, maxHeight;
+	size_t maxWidth = 0, maxHeight = 0;
 	{
 		int modeCount;
 		const GLFWvidmode* modes = glfwGetVideoModes(monitor, &modeCount);
@@ -70,7 +70,7 @@ int Window::Initialize(bool FULLSCREEN)
 		width = maxWidth, height = maxHeight;
 
 	// Create the window
-	mainWindow = glfwCreateWindow(width, height, Title.c_str(), FULLSCREEN ? monitor:NULL, NULL);
+	mainWindow = glfwCreateWindow(width, height, Title.c_str(), FULLSCREEN ? monitor:NULL , NULL);
 	if (!mainWindow)
 	{
 		printf("Error creating GLFW window!");
@@ -210,16 +210,16 @@ void Window::handleMouse(GLFWwindow* window, double xPos, double yPos)
 
 	if (theWindow->mouseFirstMoved)
 	{
-		theWindow->lastX = xPos;
-		theWindow->lastY = yPos;
+		theWindow->lastX = (GLfloat)xPos;
+		theWindow->lastY = (GLfloat)yPos;
 		theWindow->mouseFirstMoved = false;
 	}
 
-	theWindow->xChange = xPos - theWindow->lastX;
-	theWindow->yChange = theWindow->lastY - yPos;
+	theWindow->xChange = (GLfloat)xPos - theWindow->lastX;
+	theWindow->yChange = theWindow->lastY - (GLfloat)yPos;
 
-	theWindow->lastX = xPos;
-	theWindow->lastY = yPos;
+	theWindow->lastX = (GLfloat)xPos;
+	theWindow->lastY = (GLfloat)yPos;
 }
 
 void Window::handleMouseButton(GLFWwindow* window, int button, int action, int mods)

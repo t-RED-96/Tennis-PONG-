@@ -1,6 +1,4 @@
-#ifdef ENGINE
-#pragma once
-
+//#ifdef ENGINE
 #include "stdio.h"
 #include <cmath>
 #include <string>
@@ -9,6 +7,8 @@
 #include <GLFW\glfw3.h>
 
 #include "BitBool.h"
+#pragma once
+
 class Window
 {
 public:
@@ -21,8 +21,8 @@ public:
 	int Initialise();
 	int Initialize(bool FULLSCREEN);
 
-	GLint getBufferWidth() { return bufferWidth; }
-	GLint getBufferHeight() { return bufferHeight; }
+	GLint GetBufferWidth() { return bufferWidth; }
+	GLint GetBufferHeight() { return bufferHeight; }
 
 	bool ShouldClose() { return glfwWindowShouldClose(mainWindow); }
 
@@ -67,5 +67,4 @@ private:
 	static void handleMouseButton(GLFWwindow* window, int button, int action, int mods);
 	static void handleJoystickConnected(int joy, int event);
 };
-#endif // ENGINE
-
+//#endif // ENGINE

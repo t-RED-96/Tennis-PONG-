@@ -1,24 +1,33 @@
-#ifdef ENGINE
-#pragma once
-#include "All_Components.h"
+//#ifdef ENGINE
 #include <vector>
+#pragma once
+class Entity;
+class Model;
+class AnimatedModel;
+class Audio;
+class Camera;
+class Collider;
+class RigidBody;
+class Scripts;
+class Sun;
+#include "All_Components.h"
 class Scene
 {
 public:
 	struct ComponentCatalogue {
-		const std::vector<Entity>& allEntity;
-		const std::vector<Model>& allModel;
-		const std::vector<AnimatedModel>& allAnimatedModel;
-		const std::vector<Audio>& allAudio;
-		const std::vector<Camera>& allCamera;
+		const std::vector<Entity>* allEntity;
+		const std::vector<Model>* allModel;
+		//const std::vector<AnimatedModel>* allAnimatedModel;
+		//const std::vector<Audio>* allAudio;
+		const std::vector<Camera>* allCamera;
 		const Camera* currCamera;
-		const std::vector<Collider>& allCollider;
-		const std::vector<RigidBody>& allRigidBodyData;
-		const std::vector<Scripts>& allScripts;
-		union {
-			const Sun& sun;
-			const Sun& mainLight;
-		};
+		//const std::vector<Collider>* allCollider;
+		//const std::vector<RigidBody>* allRigidBodyData;
+		const std::vector<Scripts>* allScripts;
+		//union {
+		//	const Sun* sun;
+		//	const Sun* mainLight;
+		//};
 	};
 private:
 	std::vector<Entity> allEntity;
@@ -30,27 +39,45 @@ private:
 	std::vector<Collider> allCollider;
 	std::vector<RigidBody> allRigidBodyData;
 	std::vector<Scripts> allScripts;
+
 	union {
-		Sun sun;
-		Sun mainLight;
+		Sun* sun;
+		Sun* mainLight;
 	};
+	void(*_init)(Scene& _this);
+	void(*_update)(Scene& _this);
+	void(*_render)(Scene& _this);
 public:
-	Scene() {};
-	const Entity& AddEntity(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
-	ComponentCatalogue AllSceneComponentCatalogue(){
-		return { allEntity, allModel, allAnimatedModel, allAudio, allCamera, currCamera, allCollider, allRigidBodyData, allScripts };
+	Scene(void(*_init)(Scene& _this),void(*_update)(Scene& _this),void(*_render)(Scene& _this)) 
+		: currCamera(NULL), sun(NULL) , _init(_init), _update(_update), _render(_render)
+	{};
+	Entity& AddEntity(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
+	ComponentCatalogue AllSceneComponentCatalogue() {
+		return { &allEntity, &allModel, /*&allAnimatedModel, &allAudio,*/ &allCamera, currCamera, /*&allCollider, &allRigidBodyData,*/ &allScripts/*, sun*/ };
+	};
+	void Init() {
+		_init(*this);
 	}
-#ifdef OnlyEngineHasAccess
-	const Model& AddComponent(const Model& comp);
-	const AnimatedModel& AddComponent(const AnimatedModel& comp);
-	const Audio& AddComponent(const Audio& comp);
-	const Camera& AddComponent(const Camera& comp);
-	const Collider& AddComponent(const Collider& comp);
-	const RigidBody& AddComponent(const RigidBody& comp);
-	const Scripts& AddComponent(const Scripts& comp);
-	const Sun& AddComponent(const Sun& comp);
-#endif // OnlyEngineHasAccess
+	void Update() {
+		_update(*this);
+	}
+	void Render() {
+		_render(*this);
+	}
+//#ifdef OnlyEngineHasAccess
+
+	Model& AddComponent(const Model& comp);
+	AnimatedModel& AddComponent(const AnimatedModel& comp);
+	Audio& AddComponent(const Audio& comp);
+	Camera& AddComponent(const Camera& comp);
+	Collider& AddComponent(const Collider& comp);
+	RigidBody& AddComponent(const RigidBody& comp);
+	Scripts& AddComponent(const Scripts& comp);
+	Sun& AddComponent(const Sun& comp);
+
+//#endif // OnlyEngineHasAccess
 private:
-	const Entity& AddEntity(const Entity& entity);
+	Scene() = delete;
+	Entity& AddEntity(const Entity& entity);
 };
-#endif
+//#endif

@@ -4,12 +4,12 @@ Scripts::Scripts(Entity& thisObj,void(*reset)(Entity& thisObj), void(*update)(En
 	:Component(thisObj),_reset(reset),_update(update)
 {}
 
-void Scripts::Reset()
+void Scripts::Reset() const
 {
 	_reset(thisObj);
 }
 
-void Scripts::Update()
+void Scripts::Update() const
 {
 	_update(thisObj);
 }

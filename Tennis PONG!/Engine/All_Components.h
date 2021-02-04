@@ -1,5 +1,5 @@
 #pragma once
-#define ENGINE = 0
+//#define ENGINE = 0
 #include "Window.h"
 #include "Component.h"
 #include "AnimatedModel.h"
@@ -12,4 +12,4 @@
 #include "Scripts.h"
 #include "Sun.h"
 #include "Scene.h"
-#define ENGINE = 1
+//#define ENGINE = 1

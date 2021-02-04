@@ -1,14 +1,17 @@
-#ifdef ENGINE
-#pragma once
+//#ifdef ENGINE
+class Component;
 #include "Component.h"
+class Entity;
+
+#pragma once
 class Audio :
     public Component
 {
 public:
-    Audio(Entity& thisObj):Component(thisObj) {};
+    Audio(Entity& thisObj): Component(thisObj) {};
 private:
     void* getComponent() override { return this; }
-    ComponentType typ() override { return AUDIO; }
+    Component::Type typ() override { return Component::Type::AUDIO; }
 };
 
-#endif
+//#endif

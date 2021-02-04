@@ -1,11 +1,14 @@
-#ifdef ENGINE
+//#ifdef ENGINE
 #pragma once
+class Component;
 #include "Component.h"
+class Entity;
+
 class Collider :
     public Component
 {
 public:
-    enum ColliderTyp: unsigned char{
+    enum class TYP: unsigned char{
         CIRCLE,
         CYLINDER,
         BOX,
@@ -17,18 +20,18 @@ private:
     };
     float breadth;
     float height;
-    ColliderTyp _typ;
+    TYP _typ;
 public:
     Collider() = delete;
-#ifdef OnlyEngineHasAccess
-    Collider(Entity& thisObj,ColliderTyp typ, float radius);
-    Collider(Entity& thisObj,ColliderTyp typ, float radius, float height);
-    Collider(Entity& thisObj,ColliderTyp typ, float length, float breadth, float height);
-#endif // OnlyEngineHasAccess
+//#ifdef OnlyEngineHasAccess
+    Collider(Entity& thisObj,TYP typ, float radius);
+    Collider(Entity& thisObj,TYP typ, float radius, float height);
+    Collider(Entity& thisObj,TYP typ, float length, float breadth, float height);
+//#endif // OnlyEngineHasAccess
 private:
     void* getComponent() override { return this; }
-    ComponentType typ() override { return COLLIDER; }
+    Component::Type typ() override { return Component::Type::COLLIDER; }
 };
 
 
-#endif
+//#endif

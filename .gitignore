@@ -35,3 +35,7 @@
 
 #- MarkDown .md files
 !*.md
+
+#- Ignore Debug Folder
+Tennis PONG!/Debug/*
+Tennis PONG!/Release/*

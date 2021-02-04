@@ -1,10 +1,11 @@
-#ifdef ENGINE
-#pragma once
+//#ifdef ENGINE
 class Entity;
+
+#pragma once
 class Component
 {
 public:
-	enum ComponentType :unsigned char {
+	enum class Type :unsigned char {
 		ANIMATED_MODEL,
 		AUDIO,
 		CAMERA,
@@ -15,11 +16,11 @@ public:
 		SUN
 	};
 	virtual void* getComponent() = 0;
-	virtual ComponentType typ() = 0;
+	virtual Type typ() = 0;
 protected:
+	Entity& thisObj;
 	Component() = delete;
 	Component(Entity& thisObj) :thisObj(thisObj) {};
-	Entity& thisObj;
 };
 
-#endif
+//#endif

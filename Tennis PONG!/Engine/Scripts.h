@@ -1,7 +1,10 @@
-#ifdef ENGINE
+//#ifdef ENGINE
 #pragma once
-#include "Entity.h"
+
+class Component;
 #include "Component.h"
+class Entity;
+
 class Scripts :
     public Component
 {
@@ -9,12 +12,12 @@ private:
     void(*_reset)(Entity& thisObj);
     void(*_update)(Entity& thisObj);
     void* getComponent() override { return this; }
-    ComponentType typ() override { return SCRIPT; }
+    Component::Type typ() override { return Component::Type::SCRIPT; }
 public:
     Scripts() = delete;
     Scripts(Entity& thisObj,void(*_reset)(Entity& thisObj), void(*_update)(Entity& thisObj));
-    void Reset();
-    void Update();
+    void Reset() const;
+    void Update() const;
 };          
 
-#endif
+//#endif

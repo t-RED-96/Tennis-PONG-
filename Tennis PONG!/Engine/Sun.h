@@ -1,18 +1,20 @@
-#ifdef ENGINE
+//#ifdef ENGINE
 #pragma once
+
 #include "BaseLight.h"
+class Component;
 #include "Component.h"
+class Entity;
+
 class Sun :
     public Component, public BaseLight
 {
 public:
+    Sun() = delete;
     Sun(Entity& thisObj):Component(thisObj){}
-    void operator=(const Sun& oth) {
-        thisObj = oth.thisObj;
-    }
 private:
     void* getComponent() override { return this; }
-    ComponentType typ() override { return SUN; }
+    Component::Type typ() override { return Component::Type::SUN; }
 };
 
-#endif
+//#endif

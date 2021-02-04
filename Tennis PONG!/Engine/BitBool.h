@@ -10,11 +10,11 @@ public:
 		return ((data[posn / 8] & (1 << (posn % 8))) != 0);
 	}
 	void Set(size_t posn, bool status) {
-		status = status ? 1 : 0;//lets say status was previously somthing entirely different
 		size_t block = posn / 8;
 		if (block >= _SizeInByte)
 			return;
-		data[block] ^= (-status ^ data[block]) & (1UL << (posn % 8));
+		data[block] ^= (-(status ? 1 : 0) ^ data[block]) & (1UL << (posn % 8));
+		//lets say status --^ was previously somthing entirely different ex. 100, 211 etc
 	}
 	void SetAllValues(bool _val) {
 		unsigned char _setter = _val ? ALL_TRUE : ALL_FALSE;

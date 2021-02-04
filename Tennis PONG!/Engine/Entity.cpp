@@ -1,13 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, Scene* _scene)
-	:sceneItIsPartOf(_scene),_Position(position), _Rotation(rotation), _Scale(scale)
-{
-	updateTransformationMatrix();
-}
-
-const glm::mat4& Entity::Matrix() const
-{
+const glm::mat4& Entity::Matrix() const {
 	return transformationMatrix;
 }
 
@@ -36,7 +29,15 @@ const glm::vec3& Entity::Scale(const glm::vec3& newScale) {
 	return _Scale;
 }
 
-void* Entity::GetComponent(Component::ComponentType typ)
+void Entity::ChangeAllParams(const glm::vec3& newPosn, const glm::vec3& newRotation, const glm::vec3& newScale)
+{
+	_Position = newPosn;
+	_Rotation = newRotation;
+	_Scale = newScale;
+	updateTransformationMatrix();
+}
+
+void* Entity::GetComponent(Component::Type typ)
 {
 	unsigned char i = 0;
 	while (allComponentsAttached[i]->typ() != typ)
@@ -45,6 +46,16 @@ void* Entity::GetComponent(Component::ComponentType typ)
 		else
 			return nullptr;
 	return allComponentsAttached[i]->getComponent();
+}
+
+Model& Entity::AddModel(const std::string& filePath)
+{
+	auto _temp = this;
+	auto temp = Model(*_temp);
+	Model& comp = sceneItIsPartOf->AddComponent(temp);
+	comp.LoadModel(filePath);
+	allComponentsAttached.push_back((Component*)(&comp));
+	return comp;
 }
 
 void Entity::updateTransformationMatrix()
@@ -57,30 +68,47 @@ void Entity::updateTransformationMatrix()
 	transformationMatrix = glm::scale(transformationMatrix, _Scale);
 }
 
-const Collider& Entity::AddCollider(Collider::ColliderTyp typ, float radius)
+Collider& Entity::AddCollider(Collider::TYP typ, float radius)
 {
-	auto& comp = sceneItIsPartOf->AddComponent(Collider(*this, typ, radius));
+	auto _temp = this;
+	auto temp = Collider(*_temp, typ, radius);
+	auto& comp = sceneItIsPartOf->AddComponent(temp);
 	allComponentsAttached.push_back((Component*)(&comp));
 	return comp;
 }
 
-const Collider& Entity::AddCollider(Collider::ColliderTyp typ, float radius, float height)
+Collider& Entity::AddCollider(Collider::TYP typ, float radius, float height)
 {
-	auto& comp = sceneItIsPartOf->AddComponent(Collider(*this, typ, radius,height));
+	auto _temp = this;
+	auto temp = Collider(*_temp, typ, radius, height);
+	auto& comp = sceneItIsPartOf->AddComponent(temp);
 	allComponentsAttached.push_back((Component*)(&comp));
 	return comp;
 }
 
-const Collider& Entity::AddCollider(Collider::ColliderTyp typ, float length, float breadth, float height)
+Collider& Entity::AddCollider(Collider::TYP typ, float length, float breadth, float height)
 {
-	auto& comp = sceneItIsPartOf->AddComponent(Collider(*this, typ, length,breadth,height));
+	auto _temp = this;
+	auto temp = Collider(*_temp, typ, length, breadth, height);
+	auto& comp = sceneItIsPartOf->AddComponent(temp);
 	allComponentsAttached.push_back((Component*)(&comp));
 	return comp;
 }
 
-const RigidBody& Entity::AddRigidBody(glm::vec3 Velocity, glm::vec3 Acceleration, float Mass)
+RigidBody& Entity::AddRigidBody(const glm::vec3& Velocity,const glm::vec3& Acceleration, float Mass)
 {
-	auto& comp = sceneItIsPartOf->AddComponent(RigidBody(*this,Velocity,Acceleration,Mass));
+	auto _temp = this;
+	auto temp = RigidBody(*_temp, Velocity, Acceleration, Mass);
+	auto& comp = sceneItIsPartOf->AddComponent(temp);
+	allComponentsAttached.push_back((Component*)(&comp));
+	return comp;
+}
+
+Scripts& Entity::AddScripts(void(*_reset)(Entity& thisObj), void(*_update)(Entity& thisObj))
+{
+	auto _temp = this;
+	auto temp = Scripts(*_temp, _reset, _update);
+	auto& comp = sceneItIsPartOf->AddComponent(temp);
 	allComponentsAttached.push_back((Component*)(&comp));
 	return comp;
 }

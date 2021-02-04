@@ -1,7 +1,11 @@
-#ifdef ENGINE
-#pragma once
+//#ifdef ENGINE
 #include <GLM/glm.hpp>
+class Component;
 #include "Component.h"
+class Entity;
+
+#pragma once
+
 class RigidBody :
     public Component
 {
@@ -12,10 +16,10 @@ private:
 public:
     RigidBody() = delete;
     RigidBody(Entity& thisObj,glm::vec3 Velocity, glm::vec3 Acceleration, float Mass)
-        :Component(thisObj),_Velocity(Velocity),_Acceleration(Acceleration),mass(Mass){}
+        : _Velocity(Velocity), _Acceleration(Acceleration), mass(Mass), Component(thisObj) {}
 private:
     void* getComponent() override { return this; }
-    ComponentType typ() override { return RIGIDBODY; }
+    Component::Type typ() override { return Component::Type::RIGIDBODY; }
 };
 
-#endif
+//#endif

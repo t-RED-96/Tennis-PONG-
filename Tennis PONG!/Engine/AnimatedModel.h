@@ -1,14 +1,21 @@
-#ifdef ENGINE
+//#ifdef ENGINE
 #pragma once
+
+class Component;
+#include "Component.h"
+class Entity;
+class Model;
 #include "Model.h"
+
 class AnimatedModel :
     public Model
 {
 public:
-    AnimatedModel() {}
+    AnimatedModel() = delete;
+    AnimatedModel(Entity& thisObj): Model(thisObj) {};
 private:
     void* getComponent() override { return this; }
-    ComponentType typ() override { return ANIMATED_MODEL; }
+    Component::Type typ() override { return Component::Type::ANIMATED_MODEL; }
 };
 
-#endif
+//#endif

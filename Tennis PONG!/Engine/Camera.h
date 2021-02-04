@@ -1,6 +1,9 @@
-#ifdef ENGINE
-#pragma once
+//#ifdef ENGINE
+class Component;
 #include "Component.h"
+class Entity;
+
+#pragma once
 class Camera :
     public Component
 {
@@ -8,7 +11,7 @@ public:
     Camera(Entity& thisObj) :Component(thisObj) {}
 private:
     void* getComponent() override { return this; }
-    ComponentType typ() override { return CAMERA; }
+    Component::Type typ() override { return Component::Type::CAMERA; }
 };
 
-#endif
+//#endif

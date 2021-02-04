@@ -1,183 +1,142 @@
 #include "BitBool.h"
 
-#define ENGINE 1
+#define STB_IMAGE_IMPLEMENTATION
+//
 #include "Window.h"
+#include "Entity.h"
 #include "Mesh.h"
-#define ENGINE 0
-
+#include "Model.h"
+#include "ShaderProgram.h"
+//
 #include <iostream>
 #include <Windows.h>
 
 Window _mainWindow;
 //windows Dimensions
 const GLint WIDTH = 800, HEIGHT = 600;
-Mesh* aMesh;
-GLuint VAO, VBO, shader;
-
+//Shaders
+enum SHADER: unsigned char {
+	COMMON,
+	TOTAL,
+};
+ShaderProgram shaders[SHADER::TOTAL];
 //Vertex shader
 static const char* vShader = "               \n\
  #version 440                                \n\
                                              \n\
  layout (location = 0) in vec3 pos;          \n\
+ layout (location = 1) in vec2 TexCoord;     \n\
+ layout (location = 2) in vec3 Norml;        \n\
+                                             \n\
+ out vec2 texCoord;                          \n\
+                                             \n\
+ uniform mat4 model;                         \n\
                                              \n\
 void main(){                                 \n\
-    gl_Position = vec4(pos.x,pos.y,pos.z,1); \n\
+    gl_Position = model * vec4(pos, 1.0);    \n\
+    texCoord = TexCoord;					 \n\
 }";
 
 //fragment shader
 static const char* fShader = "\n\
  #version 440                 \n\
                               \n\
+ in vec2 texCoord;            \n\
+ uniform sampler2D theTex;    \n\
  out vec4 color;              \n\
                               \n\
 void main(){                  \n\
-    color = vec4(1,0,0,1);    \n\
+    color = texture(theTex, texCoord);  \n\
 }";
-void RenderOnlyMesh(Mesh& mesh) {
-    mesh.BindVAO();
-    //glEnableVertexAttribArray(0);
-    glDrawArrays(GL_TRIANGLES, 0, mesh.IndexCount() / 3);
-    //glDisableVertexAttribArray(0);
-    mesh.UnbindVAO();
+#if 1
+std::ostream& operator <<(std::ostream& cout, const glm::vec2& any) {
+	cout << "glm::vec3( " << any.x << ", " << any.y << " )\n";
+	return cout;
 }
-void createQuad() {
-    GLfloat vertices[] = {
-        	-0.5f,0.5f,0,
-        	-0.5f,-0.5f,0,
-        	0.5f,-0.5f,0,
-        	0.5f,-0.5f,0,
-        	0.5f,0.5f,0,
-        	-0.5f,0.5f,0,
-        };
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);//bind
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);//bind
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);//unbind
-    glBindVertexArray(0);//unbind
+std::ostream& operator <<(std::ostream& cout, const glm::vec3& any) {
+	cout << "glm::vec3( " << any.x << ", " << any.y << ", " << any.z << " )\n";
+	return cout;
 }
-void createQuadA() {
-    float positions[] = {
-            -0.5f,0.5f,0,
-            -0.5f,-0.5f,0,
-            0.5f,-0.5f,0,
-            0.5f,-0.5f,0,
-            0.5f,0.5f,0,
-            -0.5f,0.5f,0,
-    };
-    aMesh = new Mesh(positions, (sizeof(positions) / sizeof(positions[0])));
+std::ostream& operator <<(std::ostream& cout, const glm::vec4& any) {
+	cout << "glm::vec3( " << any.x << ", " << any.y << ", " << any.z << ", " << any.w << " )\n";
+	return cout;
 }
-void renderQuad() {
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);// 6 Vertex
-    glBindVertexArray(0);
+std::ostream& operator <<(std::ostream& cout, const glm::mat4& any) {
+	cout << "glm::mat4---------------------";
+	for (size_t y = 0;y < 4;y++) {
+		cout << "\n";
+		for (size_t x = 0;x < 4;cout << ", ", x++) {
+			cout << any[y][x];
+		}
+	}
+	cout << "\n------------------------------\n";
+	return cout;
 }
-void renderQuadA() {
-    RenderOnlyMesh(*aMesh);
+void SCENE1_ENTT1_RESET(Entity& _this) {
+	_this.ChangeAllParams(glm::vec3(-0.5, 0, 0.4), glm::vec3(0, 1, 0), glm::vec3(0.005f));
 }
-void addShader(GLuint theProg, const char* shaderCode, GLenum shaderType) {
-    GLuint theShader = glCreateShader(shaderType);
-
-    const GLchar* theCode[1];
-    theCode[0] = shaderCode;
-
-    GLint codeLenth[1];
-    codeLenth[0] = strlen(shaderCode);
-
-    glShaderSource(theShader, 1, theCode, codeLenth);
-    glCompileShader(theShader);
-
-    GLint result = 0;
-    GLchar eLog[1024] = { 0 };
-
-    glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        glGetShaderInfoLog(theShader, sizeof(eLog), NULL, eLog);
-        std::cout << "Error compiling" << shaderType << " shader\n" << eLog;
-        return;
-    }
-
-    glAttachShader(theProg, theShader);
+void SCENE1_ENTT1_UPDATE(Entity& _this) {
+	_this.Rotation(glm::vec3(sin((float)glfwGetTime() * 0.3f) * 20.0f));
 }
-void compileShaders() {
-    shader = glCreateProgram();
-    if (!shader) {
-        std::cout << "Shader program creation failed\n";
-    }
-    addShader(shader, vShader, GL_VERTEX_SHADER);
-    addShader(shader, fShader, GL_FRAGMENT_SHADER);
+void SCENE1_INIT(Scene& _this) {
+	Entity& model1 = _this.AddEntity(glm::vec3(0), glm::vec3(0), glm::vec3(0));
+	model1.AddModel("space_port_tunnel.obj");
+	model1.AddScripts(SCENE1_ENTT1_RESET, SCENE1_ENTT1_UPDATE);
 
-    //DEBUG STUFF
-    GLint result = 0;
-    GLchar eLog[1024] = { 0 };
-
-    glLinkProgram(shader);
-    glGetProgramiv(shader, GL_LINK_STATUS, &result);
-    if (!result) {
-        glGetProgramInfoLog(shader, sizeof(eLog), NULL, eLog);
-        std::cout << "Error Linking Program\n" << eLog;
-        return;
-    }
-
-    glValidateProgram(shader);
-    glGetProgramiv(shader, GL_VALIDATE_STATUS, &result);
-    if (!result) {
-        glGetProgramInfoLog(shader, sizeof(eLog), NULL, eLog);
-        std::cout << "Error in shader code\n" << eLog;
-        return;
-    }
+	Scene::ComponentCatalogue __this = _this.AllSceneComponentCatalogue();
+	for (const Scripts& script : *(__this.allScripts)) {
+		script.Reset();
+	}
 }
-class A {
-public :
-    char temp;
-    A() { temp = 0; }
-    A(char q) { temp = q; }
-};
-class B:public A {
-public:
-    B():A() {}
-    B(char q):A(q) {}
-};
+void SCENE1_UPDATE(Scene& __this) {
+	Scene::ComponentCatalogue _this = __this.AllSceneComponentCatalogue();
+	for (auto& script : *_this.allScripts) {
+		script.Update();
+	}
+}
+void SCENE1_RENDER(Scene& __this) {
+	Scene::ComponentCatalogue _this = __this.AllSceneComponentCatalogue();
+	
+	shaders[SHADER::COMMON].Use();
+
+	shaders[SHADER::COMMON].SetInt("theTex", 1);//Linking to texture unit 1
+
+	for (auto& model : *_this.allModel) {
+		shaders[SHADER::COMMON].SetMat4("model", model.Matrix());//unresolved externalsymbol because linker dosent know where to lnk to (as library of engine is not compiled)
+		// i.e solve libraries problems
+		model.RenderModel();
+	}
+
+	shaders[SHADER::COMMON].Stop();
+}
+
+#endif// Scene and oth miscellaneous funcs
+
+void PrePare() {
+	glfwPollEvents();
+	// Clear the window
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 int main() {
 	_mainWindow = Window(400, 400, "Test Engine");
 	_mainWindow.Initialise();
-	float positions[] = {
-		-0.5f,0.5f,0,
-		-0.5f,-0.5f,0,
-		0.5f,-0.5f,0,
-		0.5f,-0.5f,0,
-		0.5f,0.5f,0,
-		-0.5f,0.5f,0,
-	};
-    createQuadA();
-    compileShaders();
+	
+	Scene Scene1(SCENE1_INIT, SCENE1_UPDATE, SCENE1_RENDER);
 
-    A *a;
-    B b('a');
-    a = (A*)(&b);
-    std::cout << a->temp;
+	shaders[SHADER::COMMON].CreateFromString(vShader, fShader);
+	Scene1.Init();
 	while (!_mainWindow.ShouldClose()) {
-		glfwPollEvents();
-		// Clear the window
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+		
+		PrePare();
     
 		if (_mainWindow.getsKeys()[GLFW_KEY_ESCAPE])
 			_mainWindow.CloseWindow(true), _mainWindow.getsKeys().Set(GLFW_KEY_ESCAPE,false);
-		if (_mainWindow.getsKeys()[GLFW_KEY_BACKSPACE])
-			_mainWindow.CloseWindow(false), _mainWindow.getsKeys().Set(GLFW_KEY_BACKSPACE, false);
-    
-        glUseProgram(shader);
-        renderQuadA();
-        glUseProgram(0);
-    
+		
+		Scene1.Update();
+
+		Scene1.Render();
+
 		_mainWindow.swapBuffers();
 		Sleep(10);
 	}
