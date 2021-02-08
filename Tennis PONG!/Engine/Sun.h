@@ -10,6 +10,7 @@ class Sun :
     public Component, public BaseLight
 {
 public:
+    static const Component::Type Typ = Component::Type::SUN;
     Sun() = delete;
     Sun(Entity& thisObj):Component(thisObj){}
 private:

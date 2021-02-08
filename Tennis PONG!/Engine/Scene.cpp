@@ -38,7 +38,8 @@ Camera& Scene::AddComponent(const Camera& comp)
 {
     auto& list = allCamera;
     list.push_back(comp);
-    return list[list.size() - 1];
+    currCamera = &list[list.size() - 1];
+    return *currCamera;
 }
 
 Collider& Scene::AddComponent(const Collider& comp)

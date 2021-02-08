@@ -14,6 +14,7 @@ class Model :
     public Component
 {
 public:
+	static const Component::Type Typ = Component::Type::MODEL;
     Model() = delete;
     Model(Entity& thisObj): opaque(true), Component(thisObj) {};
 	void LoadModel(const std::string& fileName);
@@ -25,7 +26,7 @@ public:
 	~Model();
 private:
     virtual void* getComponent() override { return this; }
-    virtual Component::Type typ() override { return Component::Type::MODEL; }
+	virtual Component::Type typ() override { return Component::Type::MODEL; }
 	void LoadMeshesAndMaterials(const objLoad::Loader& loader);
 	void LoadMesh(const objLoad::Mesh& mesh);
 	void LoadMaterials(const objLoad::Material& material);

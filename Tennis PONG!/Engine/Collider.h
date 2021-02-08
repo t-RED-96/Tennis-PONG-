@@ -22,6 +22,7 @@ private:
     float height;
     TYP _typ;
 public:
+    static const Component::Type Typ = Component::Type::COLLIDER;
     Collider() = delete;
 //#ifdef OnlyEngineHasAccess
     Collider(Entity& thisObj,TYP typ, float radius);
@@ -30,7 +31,7 @@ public:
 //#endif // OnlyEngineHasAccess
 private:
     void* getComponent() override { return this; }
-    Component::Type typ() override { return Component::Type::COLLIDER; }
+    Component::Type typ() override { return Component::Type::COLLIDER; } 
 };
 
 

@@ -16,6 +16,8 @@ public:
 private:
     void* getComponent() override { return this; }
     Component::Type typ() override { return Component::Type::ANIMATED_MODEL; }
+public: 
+    static const Component::Type Typ = Component::Type::ANIMATED_MODEL;
 };
 
 //#endif

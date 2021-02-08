@@ -14,6 +14,7 @@ private:
     glm::vec3 _Acceleration;
     float mass;
 public:
+    static const Component::Type Typ = Component::Type::RIGIDBODY;
     RigidBody() = delete;
     RigidBody(Entity& thisObj,glm::vec3 Velocity, glm::vec3 Acceleration, float Mass)
         : _Velocity(Velocity), _Acceleration(Acceleration), mass(Mass), Component(thisObj) {}

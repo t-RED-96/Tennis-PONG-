@@ -6,10 +6,12 @@ Scripts::Scripts(Entity& thisObj,void(*reset)(Entity& thisObj), void(*update)(En
 
 void Scripts::Reset() const
 {
-	_reset(thisObj);
+	if(_reset)
+		_reset(thisObj);
 }
 
 void Scripts::Update() const
 {
-	_update(thisObj);
+	if(_update)
+		_update(thisObj);
 }
