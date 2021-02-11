@@ -69,6 +69,7 @@ public:
 
 	void LookAt(const glm::vec3& _position_in_space);
 	void LookAndRollBy(const glm::vec3& _position_in_space,float _roll_amount_in_degrees);
+
 	//MODEL params
 	Model& AddModel(const std::string& filePath);//model params
 	//ANIMATED_MODEL params
@@ -87,7 +88,8 @@ public:
 	Scripts& AddScripts(void(*_reset)(Entity& thisObj), void(*_update)(Entity& thisObj));
 	Scripts& AddScripts(void(*_update)(Entity& thisObj));
 	//SUN,
-	//const Sun& AddSun(const Sun& comp);
+	Sun& AddSun(glm::vec3 color_RGB, float ambientIntensity, float diffuseIntensity);
+
 	void Updated(bool status) const { matrixUpdated = status; }//this is dangerous but it works
 	bool Updated() const { return matrixUpdated; }
 public: //Utility Functions

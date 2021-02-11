@@ -28,32 +28,62 @@ static const char* vShader = "               \n\
  layout (location = 1) in vec2 TexCoord;     \n\
  layout (location = 2) in vec3 Norml;        \n\
                                              \n\
- out vec2 texCoord;                          \n\
- out vec3 fragPosn;                          \n\
+ out vec2 pass_texCoord;                     \n\
+ out vec3 pass_fragPosn;                     \n\
+ out vec3 pass_normal;                       \n\
                                              \n\
  uniform mat4 model;                         \n\
  uniform mat4 projViewMat;                   \n\
                                              \n\
 void main(){                                 \n\
-    gl_Position = projViewMat * model * vec4(pos, 1.0);    \n\
-    texCoord = TexCoord;					 \n\
-    fragPosn = vec3(pos.x*0.01,pos.y*0.01,pos.z*0.01);\n\
+    vec4 World_Posn = model * vec4(pos, 1.0);\n\
+                                             \n\
+    gl_Position = projViewMat * World_Posn;  \n\
+    pass_texCoord = TexCoord;                \n\
+    pass_fragPosn = vec3(World_Posn);                     \n\
+    pass_normal = mat3(transpose(inverse(model))) * Norml;\n\
 }";
 
 //fragment shader
-static const char* fShader = "\n\
- #version 440                 \n\
-                              \n\
- in vec2 texCoord;            \n\
- in vec3 fragPosn;            \n\
- uniform sampler2D theTex;    \n\
- out vec4 color;              \n\
-                              \n\
-void main(){                  \n\
-    color = vec4(fragPosn, 1.0);  \n\
+static const char* fShader = " \n\
+ #version 440                  \n\
+                               \n\
+ in vec2 pass_texCoord;        \n\
+ in vec3 pass_fragPosn;        \n\
+ in vec3 pass_normal;          \n\
+                               \n\
+ struct Light{                 \n\
+    vec3 color;                \n\
+    float ambient_Int;         \n\
+    float diffuse_Int;         \n\
+ };                            \n\
+ struct DirectionalLight{      \n\
+    Light base;                \n\
+    vec3 direction;            \n\
+ };                            \n\
+                               \n\
+ uniform sampler2D diffuse_Tex;       \n\
+ uniform DirectionalLight mainLight;  \n\
+                               \n\
+ out vec4 out_color;           \n\
+                               \n\
+vec3 CalcLightColorByDirn(Light light,vec3 dirn){           \n\
+    float factor_amb = light.ambient_Int;                   \n\
+    float factor_diff = max(dot(pass_normal, dirn), 0.0f);  \n\
+    factor_diff *= light.diffuse_Int;                       \n\
+                                                            \n\
+    return light.color*(factor_amb + factor_diff);          \n\
+}                                                           \n\
+                               \n\
+vec4 CalcColorByDirnlLight(){                                                       \n\
+    return vec4( CalcLightColorByDirn( mainLight.base, mainLight.direction), 1.0);  \n\
+}                                                                                    \n\
+                               \n\
+void main(){                   \n\
+    vec4 finalColour = CalcColorByDirnlLight();                     \n\
+    out_color = texture(diffuse_Tex, pass_texCoord) * finalColour;  \n\
 }";
 #if 1
-
 std::ostream& operator <<(std::ostream& cout, const glm::vec2& any) {
 	cout << "glm::vec3( " << any.x << ", " << any.y << " )\n";
 	return cout;
@@ -94,6 +124,9 @@ void SCENE1_ENTT1_RESET(Entity& _this) {
 	_this.ChangeAllParams(glm::vec3(0, 0, 50), glm::vec3(0, 0, 0), glm::vec3(0.05f));
 	std::cout << _this.Matrix();
 }
+void SCENE1_SUN_UPDATE(Entity& _this) {
+	_this.Rotation(glm::vec3(45.0f*sin(glfwGetTime()*0.3f) + 90.0f, 45.0f * sin(glfwGetTime() * 0.6f) + 90.0f, 0));
+}
 Entity* model1 = NULL;
 Entity* camera = NULL;
 void SCENE1_ENTT1_UPDATE(Entity& _this) {
@@ -129,8 +162,13 @@ void SCENE1_CAMERA_UPDATE(Entity& _this) {
 
 	if (_mainWindow.getsKeys()[GLFW_KEY_SPACE])
 		std::cout << _this.Rotation(), static_cast<Camera*>(_this.GetComponent(Camera::Typ))->LookAt(model1->Position()), std::cout << _this.Rotation() << "\n" << std::endl;//, _mainWindow.getsKeys().Set(GLFW_KEY_SPACE, false);
-	if (_mainWindow.getsKeys()[GLFW_KEY_LEFT_CONTROL])
-		std::cout << _this.Rotation(), static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Follow(model1), std::cout << _this.Rotation()<<"\n", _mainWindow.getsKeys().Set(GLFW_KEY_LEFT_CONTROL, false);
+	if (_mainWindow.getsKeys()[GLFW_KEY_LEFT_CONTROL]) {
+		//__debugbreak();
+		std::cout << _this.Rotation();
+		static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Follow(model1);
+		std::cout << _this.Rotation() << "\n";
+		_mainWindow.getsKeys().Set(GLFW_KEY_LEFT_CONTROL, false);
+	}
 }
 void SCENE1_INIT(Scene& _this) {
 	model1 = &_this.AddEntity(glm::vec3(0, 0, -10), glm::vec3(0, 1, 0), glm::vec3(0.02f));
@@ -140,6 +178,10 @@ void SCENE1_INIT(Scene& _this) {
 	camera = &_this.AddEntity(glm::vec3(0.0f), glm::vec3(0.0f, 180.0f, 0.0f), glm::vec3(1.0f));
 	camera->AddCamera(90.0f, ((float)_mainWindow.GetBufferWidth() / (float)_mainWindow.GetBufferHeight()), 0.1f, 100.0f);
 	camera->AddScripts(SCENE1_CAMERA_UPDATE);
+
+	Entity& Sun = _this.AddEntity(glm::vec3(0.0f), glm::vec3(45.0f, 45.0f, 0.0f), glm::vec3(1.0f));
+	Sun.AddSun(glm::vec3(1, 1, 1), 0.1f, 0.6f);
+	Sun.AddScripts(SCENE1_SUN_UPDATE);
 	
 	Scene::ComponentCatalogue __this = _this.AllSceneComponentCatalogue();
 	for (const Scripts& script : *(__this.allScripts)) {
@@ -163,9 +205,12 @@ void SCENE1_UPDATE(Scene& __this) {
 void SCENE1_RENDER(Scene& __this) {
 	Scene::ComponentCatalogue _this = __this.AllSceneComponentCatalogue();
 	
+
 	shaders[SHADER::COMMON].Use();
 
-	shaders[SHADER::COMMON].SetInt("theTex", 1);//Linking to texture unit 1
+	_this.mainLight->ApplyLight(shaders[SHADER::COMMON].getLoc("mainLight.base.color"), shaders[SHADER::COMMON].getLoc("mainLight.base.ambient_Int"), shaders[SHADER::COMMON].getLoc("mainLight.base.diffuse_Int"), shaders[SHADER::COMMON].getLoc("mainLight.direction"));
+
+	shaders[SHADER::COMMON].SetInt("diffuse_Tex", 1);//Linking to texture unit 1
 	shaders[SHADER::COMMON].SetMat4("projViewMat", _this.currCamera->ProjectionViewMatrix());
 
 	for (auto& model : *_this.allModel) {
@@ -205,7 +250,7 @@ int main() {
 
 		_mainWindow.swapBuffers();
 		_mainWindow.ResetKeys();
-		Sleep(10);
+		//Sleep(10);
 	}
     return 0;//_Main();
 }

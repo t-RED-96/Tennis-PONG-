@@ -24,10 +24,10 @@ public:
 		//const std::vector<Collider>* allCollider;
 		//const std::vector<RigidBody>* allRigidBodyData;
 		const std::vector<Scripts>* allScripts;
-		//union {
-		//	const Sun* sun;
-		//	const Sun* mainLight;
-		//};
+		union {
+			const Sun* sun;
+			const Sun* mainLight;
+		};
 	};
 private:
 	std::vector<Entity> allEntity;
@@ -53,7 +53,7 @@ public:
 	{};
 	Entity& AddEntity(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 	ComponentCatalogue AllSceneComponentCatalogue() {
-		return { &allEntity, &allModel, /*&allAnimatedModel, &allAudio,*/ &allCamera, currCamera, /*&allCollider, &allRigidBodyData,*/ &allScripts/*, sun*/ };
+		return { &allEntity, &allModel, /*&allAnimatedModel, &allAudio,*/ &allCamera, currCamera, /*&allCollider, &allRigidBodyData,*/ &allScripts, sun };
 	};
 	void Init() {
 		_init(*this);

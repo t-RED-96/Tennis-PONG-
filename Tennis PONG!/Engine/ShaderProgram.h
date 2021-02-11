@@ -44,6 +44,10 @@ public:
 	{
 		return glGetUniformLocation(ID, name.c_str());
 	}
+	GLuint getLoc(const std::string& name) const
+	{
+		return glGetUniformLocation(ID, name.c_str());
+	}
 	// utility uniform functions
 	// ------------------------------------------------------------------------
 	void SetBool(const std::string& name, bool value) const

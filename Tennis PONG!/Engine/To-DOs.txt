@@ -1,73 +1,12 @@
 ﻿WorkFlow: (This is an Idea Dump too)
-===
-👍 Complete Chapter 2 Transformations from Fundamentals of game engine programming (Done: Half)
-===
-👍 + Camera(Done except Roll functions,Well Dosen't Matter that much)
-~{
-~   use Y->X->Z rotation (to prevent gimbal lock since looking up and downare least likly to happen), other way would be to use quaternion then for representation move it to euler
-~   {
-~     y = yaw;(rotation about global y axis, relative/from to +tve x axis)
-~     x = - pitch;(rotation about new X axis, however due to RHS(right handed system) for +tve rotation we gotta tilt dirn(front) downwards, relative to +tve zAxis)
-~     z = roll;(rotation about global z axis, relative/from to +tve x axis)
-~ X_X DANGER: Notice our front is -z Axis for camera(only) & z axis for other Entity while we are calculating, so we need to correct this
-~
-~	Notice gimble lock only happens when you are directly using Euler to rotate(i.e changing/InterPolating eular rotation contineuously).
-~   }
-~      Inverse of model matrix of camera can give view matrix(remember camera is the virtual representation of (shifted and rotated version of origin) new world matrix)
-~      {
-~        this open various possibilities i.e use of glm::lookat for calculation of model matrix
-~        the only thing left is extracting position, rotation and scale from model matrix - which is mostly not needed(Ommitted)
-~      }
-~      eular to quaternion, (pitch, yaw) will give dirn i.e cameraFront AND (roll) will be used find cameraRight
-~      {
-~        cross WorldUp x front = right of camera;
-~        rotate right by (roll) amount to get cameraRight;
-~      }Or we could simply use transposed Rotation Matrix(3x3) 
-~      [ translated x axis(a.k.a Left ) ]  <--------*`     
-~      [ translated y axis(a.k.a Up   ) ]
-~      [ translated z axis(a.k.a front) ]
-~    For that:
-~    glm::mat3 MakeRotationX(float radians) {
-~    	float c = cos(radians);
-~    	float s = sin(radians);
-~    	return (glm::mat3(1.0f, 0.0f, 0.0f,
-~    					  0.0f,    c,   -s,
-~    					  0.0f,    s,    c));
-~    }
-~    glm::mat3 MakeRotationY(float radians) {
-~    	float c = cos(radians);
-~    	float s = sin(radians);
-~    	return (glm::mat3( c, 0.0f, s,
-~    		            0.0f, 1.0f, 0.0f,
-~    		              -s, 0.0f, c));
-~    }
-~    glm::mat3 MakeRotationZ(float radians) {
-~    	float c = cos(radians);
-~    	float s = sin(radians);
-~    	return (glm::mat3( c,   -s, 0.0f,
-~    		               s,    c, 0.0f,
-~    		            0.0f, 0.0f, 1.0f));
-~    }
-~    i.e.
-~    dirn(front) = glm::transpose(MakeRotationZ(glm::radians(_Rotation.z)) * MakeRotationX(glm::radians(_Rotation.x)) * MakeRotationY(glm::radians(_Rotation.y))) * front;
-~    for Camera front is 0, 0, -1;
-~     camera.LookAt(vec3 dirn){
-~        dirn -> pitch,yaw -> eular.XYZ = (pitch ,yaw ,0) = rotation
-~        //SCRAPPED
-~        //glm::eularAngles(glm::quat(dirn,worldUp).XY,0) = eular.XYZ
-~     }
-~     camera.RollBy(degree){
-~        roll = -degree;//reverse dirn (Maybe Not Implimented For Now
-~        (rotation.x ,rotation.y, -degrees) = rotation;
-~     }
-~     camera.LookAndRoll(dirn,degree){
-~        roll = -degree;
-~        dirn -> pitch,yaw -> eular.XYZ = (pitch ,yaw , roll) = rotation
-~     }
-~   }
-~}
- + Phong Lighting Model(BaseLight for DirectionalLight)
- + Write Sun class (Directional Light)
+ + Phong Lighting Model( Write Sun class (Directional Light) )
+ {
+    To Put Simply Ambient->Diffuse-->Specular(ReQuires MATERIAL CLASS, This New Class Will Have Texture Data Insted Of Model,While Model is Having Material)
+    Day 1 10-02-2021{
+        Browsing Through Youtube While Wsating time.
+        {brightness In Shader, Min Of Color passed out from frag Shader will be determined By Brightness controlled by ambient,diffuse,specular (Later will be dampened by shadow; FOG has different color so after dampning brightness, the color it will be faded/mixed by fog's-color)}
+    }
+ }
  + Directional Shadows(Only)
 ===
  Learn animation in Blender to understand different animation types
@@ -79,9 +18,18 @@
  + RigidBody class(Physics System)[Hitbox type]
 
 Polishing Features(Some features or Changes Outside preffered Workflow):
+ - camera.RollBy(degree){ roll = -degree;//reverse dirn (Maybe, Not Implimented For Now)
+      (rotation.x ,rotation.y, -degrees) = rotation;
+   }
+ - Cull opposite facing triangles[Optimize]
+ - Mipmapping of textures[Optimize & Improve to Visuals]
+ - Limit/dampen Efects By Distance(Like specular light)[Optimize]
+ - Take out Mesh and texture From Model AND resolve mesh & texture duplication in memory{may increase speed}[Optimize]
+ - Sort Mesh and texture in memory{For Nxt Step, Can be Lot Harder, However Creating Link List May Help then create new Scene with Stacked static data chunks i.e *Point 3. Optional Polish*}[Optimize]
+ - Sorting Can be Done EveryWhere.
+ - Models Loading Mesh and texture will somtimes be same so Sort and process them in sorted order(and since model and texture are the main datas, all models can push this information(from scene renderer) to Master Renderer where it will create tuple of mesh and texture and other necessary stuff,sort them by Mesh -> texture,fed the data to OpenGL)[Optimize]
  - Change Script Component(just single func/behavior per script comp){Break Scripts to awake and update scripts(inside Scene)[to add multiple scripts on whim instead of just 1 reset and update]}
  - Store initial(when initialising Scene) Posn and settings of different components inside a stock script Of type awake{It can work as saving scenes}
- - take out Mesh and texture From Model AND resolve mesh & texture duplication in memory{may increase speed}
  - Generalize Scene update and render functions{you know why}
  - map mesh to shader(){to both give user freedom of writing own shaders and to facilitate scene render func}
  - Extract game loop and every stuff out main function, Run rendering,collision and every stuff you can on different thread
@@ -94,6 +42,6 @@ Optional Polish:
  - Continuous Collision
  - Seprate Terrain System
  - Create intermidiate stage after init where a new Scene is created on heap where everything is located in contineuous format(not in std::vector but array i.e contineous data blocks) then wipe the temp scene wherever possible to free immidiate cache.
-   `*=> it can also slow down(since everything on RAM) so optimize that too 😁
+   `*=> it can also slow down(since everything on RAM) so optimize that too. 😁
 
 NOTE: this a stepping stone(that is i'm proud of) for understanding HAZEL/(General ECS based Engines) to core AND for Resume, So good luck to myself, focusing on gathering Knowledge not lazing around 👍

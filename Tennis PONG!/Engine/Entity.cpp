@@ -201,6 +201,15 @@ Scripts& Entity::AddScripts(void(*_update)(Entity& thisObj))
 	return comp;
 }
 
+Sun& Entity::AddSun(glm::vec3 color_RGB, float ambientIntensity, float diffuseIntensity)
+{
+	auto _temp = this;
+	auto temp = Sun(*_temp, color_RGB, ambientIntensity, diffuseIntensity);
+	auto& comp = sceneItIsPartOf->AddComponent(temp);
+	allComponentsAttached.push_back((Component*)(&comp));
+	return comp;
+}
+
 glm::mat3 Entity::MakeRotationX(float radians) {
 	float c = cos(radians);
 	float s = sin(radians);
