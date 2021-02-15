@@ -50,7 +50,9 @@ private:
 public:
 	Scene(void(*_init)(Scene& _this),void(*_update)(Scene& _this),void(*_render)(Scene& _this)) 
 		: currCamera(NULL), sun(NULL) , _init(_init), _update(_update), _render(_render)
-	{};
+	{
+		allEntity.reserve(3);
+	};
 	Entity& AddEntity(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale);
 	ComponentCatalogue AllSceneComponentCatalogue() {
 		return { &allEntity, &allModel, /*&allAnimatedModel, &allAudio,*/ &allCamera, currCamera, /*&allCollider, &allRigidBodyData,*/ &allScripts, sun };

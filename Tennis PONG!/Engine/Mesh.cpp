@@ -10,6 +10,7 @@ Mesh::Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& i
 }
 Mesh::Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& indices, const std::vector<glm::vec2>& TextureCOords, const std::vector<glm::vec3>& Normals)
 {
+	
 	CreateVAO();
 	BindVAO();
 	CreateIndexBuffer((size_t*)(&indices[0]), indices.size());
@@ -38,6 +39,47 @@ Mesh::Mesh(const float* const positions, size_t size)
 Mesh::~Mesh()
 {
 	CleanUP();
+}
+template<typename BoundingBoxType>
+void Mesh::GenerateBoundingBox(const std::vector<BoundingBoxType>& positions)
+{
+	const unsigned char Attrib_size = (sizeof(BoundingBoxType) / sizeof(float));
+	float* minMaxs = GenerateMinMaxAttrib<Attrib_size>(&positions[0][0], positions.size());
+	for (unsigned char i = 0; i < Attrib_size;i++) {
+		MinOfBoundingBox[i] = minMaxs[i];
+	}
+	for (unsigned char i = 0; i < Attrib_size;i++) {
+		MaxOfBoundingBox[i] = minMaxs[i + Attrib_size];
+	}
+	delete[] minMaxs;
+}
+template<unsigned char Attribute_Size>
+float* Mesh::GenerateMinMaxAttrib(const float* const data,unsigned int size)
+{
+	float min[Attribute_Size];
+	float max[Attribute_Size];
+	for (size_t j = 0; j < Attribute_Size; j++) {
+		min[j] = data[j];
+		max[j] = data[j];
+	}
+	for (size_t i = Attribute_Size; i < size - Attribute_Size; i += Attribute_Size) {
+		for (size_t j = 0; j < Attribute_Size; j++) {
+			if (min[j] > data[i + j]) {
+				min[j] = data[i + j];
+			}
+			if (max[j] < data[i + j]) {
+				max[j] = data[i + j];
+			}
+		}
+	}
+	float temp = new float[2 * Attribute_Size];
+	for (size_t j = 0; j < Attribute_Size; j++) {
+		temp[j] = min[j];
+	}
+	for (size_t j = Attribute_Size; j < 2*Attribute_Size; j++) {
+		temp[j] = max[j];
+	}
+	return temp;
 }
 void Mesh::CreateVAO() {
 	glGenVertexArrays(1, &VAO);

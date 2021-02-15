@@ -9,6 +9,7 @@ class Texture
 public:
 	Texture();
 	Texture(const char* fileLoc);
+	Texture(const std::string& fileLoc);
 
 	bool LoadTexture(bool withAlpha);
 
@@ -17,6 +18,8 @@ public:
 	void Use();
 	void UseAt(char Unit);
 	void ClearTexture();
+
+	const std::string& GetTextureLocationInDisk() { return fileLocation; }
 
 	~Texture();
 private:

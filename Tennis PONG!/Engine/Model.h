@@ -1,14 +1,14 @@
 //#ifdef ENGINE
+#pragma once
 #include <vector>
 #include <string>
 #include <glm\gtc\type_ptr.hpp>
 #include "Mesh.h"
-#include "Texture.h"
+#include "Material.h"
 #include "obj_loader.h"
 class Component;
 #include "Component.h"
 class Entity;
-#pragma once
 
 class Model :
     public Component
@@ -21,7 +21,8 @@ public:
 	const glm::mat4& Matrix() const;
 	void RenderModel() const;
 	void ClearModel();
-	void Transparent(bool state);
+	Model& Transparent(bool state);
+	Model& ChangeMaterial(float shininess, float specularIntensity);
 
 	~Model();
 private:
@@ -32,6 +33,6 @@ private:
 	void LoadMaterials(const objLoad::Material& material);
 	bool opaque;
 	std::vector<Mesh*> mesh_list;
-	std::vector<Texture*> texture_list;
+	std::vector<Material> material_list;
 };
 //#endif

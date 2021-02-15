@@ -23,7 +23,7 @@ const glm::mat4& Model::Matrix() const
 void Model::LoadMeshesAndMaterials(const objLoad::Loader& loader)
 {
 	mesh_list.reserve(loader.LoadedMeshes.size());
-	texture_list.reserve(loader.LoadedMeshes.size());
+	material_list.reserve(loader.LoadedMeshes.size());
 	for (size_t i = 0; i < loader.LoadedMeshes.size(); i++)
 	{
 		LoadMesh(loader.LoadedMeshes[i]);
@@ -47,21 +47,22 @@ void Model::LoadMesh(const objLoad::Mesh& mesh) {
 		//Normals.push_back(*((glm::vec3*)(&mesh.Vertices[i].Normal)));
 	}
 
-	Mesh* thisMesh = new Mesh(&positions[0].x,positions.size()*3,&mesh.Indices[0],mesh.Indices.size());
+	Mesh* thisMesh = new Mesh(positions, mesh.Indices, TexCoords, Normals);
 
 	mesh_list.push_back(thisMesh);
 }
 
 void Model::LoadMaterials(const objLoad::Material& material) {
-	Texture* tex = new Texture(material.map_Kd.c_str());
-	if (!tex->LoadTexture(true))
-	{
-		printf("Failed to load texture at %s\n", material.map_Kd.c_str());
-		delete tex;
-		tex = new Texture("plain.png");
-		tex->LoadTexture(false);
+	material_list.emplace_back(material.map_Kd);
+	material_list[material_list.size() - 1].Load(true);
+}
+
+Model& Model::ChangeMaterial(float shininess, float specularIntensity) {
+	for (auto& mat : material_list) {
+		mat.ChangeSpecularIntensityTo(specularIntensity);
+		mat.ChangeSpecularPowerTo(shininess);
 	}
-	texture_list.push_back(tex);
+	return *this;
 }
 
 void Model::ClearModel()
@@ -75,14 +76,11 @@ void Model::ClearModel()
 		}
 	}
 
-	for (size_t i = 0; i < texture_list.size(); i++)
+	for (size_t i = 0; i < material_list.size(); i++)
 	{
-		if (texture_list[i])
-		{
-			delete texture_list[i];
-			texture_list[i] = nullptr;
-		}
+		material_list[i].~Material();
 	}
+	material_list.clear();
 }
 
 Model::~Model()
@@ -96,12 +94,14 @@ void Model::RenderModel() const
 		glDisable(GL_BLEND);
 	for (size_t i = 0; i < mesh_list.size(); i++)
 	{
-		texture_list[i]->Use();
+		material_list[i].Use();
 		mesh_list[i]->Render();
 	}
 	if (opaque)
 		glEnable(GL_BLEND);
 }
-void Model::Transparent(bool state) {
+
+Model& Model::Transparent(bool state) {
 	opaque = !state;
+	return *this;
 }

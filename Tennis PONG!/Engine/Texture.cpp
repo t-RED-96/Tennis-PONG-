@@ -12,7 +12,14 @@ Texture::Texture(const char* fileLoc) {
 
 	fileLocation = fileLoc;
 }
+Texture::Texture(const std::string& fileLoc) {
+	textureID = 0;
+	width = 0, height = 0, bitDepth = 0;
+
+	fileLocation = fileLoc;
+}
 bool Texture::LoadTexture(bool withAlpha) {
+
 	unsigned char* texData = stbi_load(fileLocation.c_str(), &width, &height, &bitDepth, 0);
 	if (!texData) {
 		std::cout << "failed to find : " << fileLocation << std::endl;

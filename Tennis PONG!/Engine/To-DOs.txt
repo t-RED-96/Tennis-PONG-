@@ -6,6 +6,10 @@
         Browsing Through Youtube While Wsating time.
         {brightness In Shader, Min Of Color passed out from frag Shader will be determined By Brightness controlled by ambient,diffuse,specular (Later will be dampened by shadow; FOG has different color so after dampning brightness, the color it will be faded/mixed by fog's-color)}
     }
+    Day 6 15-02-2021{
+        Found Extremly Idiotic Mistake, while generating Mesh I Was not passing Normals to mesh;
+        Moving on to specular lighting.
+    }
  }
  + Directional Shadows(Only)
 ===

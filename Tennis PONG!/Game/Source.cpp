@@ -21,68 +21,10 @@ enum SHADER: unsigned char {
 };
 ShaderProgram shaders[SHADER::TOTAL];
 //Vertex shader
-static const char* vShader = "               \n\
- #version 440                                \n\
-                                             \n\
- layout (location = 0) in vec3 pos;          \n\
- layout (location = 1) in vec2 TexCoord;     \n\
- layout (location = 2) in vec3 Norml;        \n\
-                                             \n\
- out vec2 pass_texCoord;                     \n\
- out vec3 pass_fragPosn;                     \n\
- out vec3 pass_normal;                       \n\
-                                             \n\
- uniform mat4 model;                         \n\
- uniform mat4 projViewMat;                   \n\
-                                             \n\
-void main(){                                 \n\
-    vec4 World_Posn = model * vec4(pos, 1.0);\n\
-                                             \n\
-    gl_Position = projViewMat * World_Posn;  \n\
-    pass_texCoord = TexCoord;                \n\
-    pass_fragPosn = vec3(World_Posn);                     \n\
-    pass_normal = mat3(transpose(inverse(model))) * Norml;\n\
-}";
-
+static const char* vShader = "../Shaders/vShader_common.glsl";
 //fragment shader
-static const char* fShader = " \n\
- #version 440                  \n\
-                               \n\
- in vec2 pass_texCoord;        \n\
- in vec3 pass_fragPosn;        \n\
- in vec3 pass_normal;          \n\
-                               \n\
- struct Light{                 \n\
-    vec3 color;                \n\
-    float ambient_Int;         \n\
-    float diffuse_Int;         \n\
- };                            \n\
- struct DirectionalLight{      \n\
-    Light base;                \n\
-    vec3 direction;            \n\
- };                            \n\
-                               \n\
- uniform sampler2D diffuse_Tex;       \n\
- uniform DirectionalLight mainLight;  \n\
-                               \n\
- out vec4 out_color;           \n\
-                               \n\
-vec3 CalcLightColorByDirn(Light light,vec3 dirn){           \n\
-    float factor_amb = light.ambient_Int;                   \n\
-    float factor_diff = max(dot(pass_normal, dirn), 0.0f);  \n\
-    factor_diff *= light.diffuse_Int;                       \n\
-                                                            \n\
-    return light.color*(factor_amb + factor_diff);          \n\
-}                                                           \n\
-                               \n\
-vec4 CalcColorByDirnlLight(){                                                       \n\
-    return vec4( CalcLightColorByDirn( mainLight.base, mainLight.direction), 1.0);  \n\
-}                                                                                    \n\
-                               \n\
-void main(){                   \n\
-    vec4 finalColour = CalcColorByDirnlLight();                     \n\
-    out_color = texture(diffuse_Tex, pass_texCoord) * finalColour;  \n\
-}";
+static const char* fShader = "../Shaders/fShader_common.glsl";
+
 #if 1
 std::ostream& operator <<(std::ostream& cout, const glm::vec2& any) {
 	cout << "glm::vec3( " << any.x << ", " << any.y << " )\n";
@@ -125,10 +67,11 @@ void SCENE1_ENTT1_RESET(Entity& _this) {
 	std::cout << _this.Matrix();
 }
 void SCENE1_SUN_UPDATE(Entity& _this) {
-	_this.Rotation(glm::vec3(45.0f*sin(glfwGetTime()*0.3f) + 90.0f, 45.0f * sin(glfwGetTime() * 0.6f) + 90.0f, 0));
+	_this.Rotation(glm::vec3(/*45.0f*sin(glfwGetTime()*0.3f) + 90.0f*/0, 180.0f * sin(glfwGetTime()*0.5f) + 90.0f, 0));
 }
 Entity* model1 = NULL;
 Entity* camera = NULL;
+Entity* sun = NULL;
 void SCENE1_ENTT1_UPDATE(Entity& _this) {
 	if (_mainWindow.getsKeys()[GLFW_KEY_B])
 		std::cout << _this.Front() << _this.Right() << _this.Up(),__debugbreak();
@@ -147,21 +90,22 @@ void SCENE1_ENTT1_UPDATE(Entity& _this) {
 	
 }
 void SCENE1_CAMERA_UPDATE(Entity& _this) {
-	if (_mainWindow.getsKeys()[GLFW_KEY_W])
-		_this.Position(_this.Position() + 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Front());
-	if (_mainWindow.getsKeys()[GLFW_KEY_S])
-		_this.Position(_this.Position() - 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Front());
-	if (_mainWindow.getsKeys()[GLFW_KEY_D])
-		_this.Position(_this.Position() + 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Right());
-	if (_mainWindow.getsKeys()[GLFW_KEY_A])
-		_this.Position(_this.Position() - 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Right());
-	if (_mainWindow.getsKeys()[GLFW_KEY_UP])
-		_this.Position(_this.Position() + 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Up());
-	if (_mainWindow.getsKeys()[GLFW_KEY_DOWN])
-		_this.Position(_this.Position() - 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Up());
+	//if (_mainWindow.getsKeys()[GLFW_KEY_W])
+	//	_this.Position(_this.Position() + 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Front());
+	//if (_mainWindow.getsKeys()[GLFW_KEY_S])
+	//	_this.Position(_this.Position() - 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Front());
+	//if (_mainWindow.getsKeys()[GLFW_KEY_D])
+	//	_this.Position(_this.Position() + 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Right());
+	//if (_mainWindow.getsKeys()[GLFW_KEY_A])
+	//	_this.Position(_this.Position() - 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Right());
+	//if (_mainWindow.getsKeys()[GLFW_KEY_UP])
+	//	_this.Position(_this.Position() + 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Up());
+	//if (_mainWindow.getsKeys()[GLFW_KEY_DOWN])
+	//	_this.Position(_this.Position() - 0.1f * static_cast<Camera*>(_this.GetComponent(Camera::Typ))->Up());
 
-	if (_mainWindow.getsKeys()[GLFW_KEY_SPACE])
-		std::cout << _this.Rotation(), static_cast<Camera*>(_this.GetComponent(Camera::Typ))->LookAt(model1->Position()), std::cout << _this.Rotation() << "\n" << std::endl;//, _mainWindow.getsKeys().Set(GLFW_KEY_SPACE, false);
+	//if (_mainWindow.getsKeys()[GLFW_KEY_SPACE])
+	//	std::cout << _this.Rotation(), static_cast<Camera*>(_this.GetComponent(Camera::Typ))->LookAt(model1->Position()), std::cout << _this.Rotation() << "\n" << std::endl;//, _mainWindow.getsKeys().Set(GLFW_KEY_SPACE, false);
+	_this.Position(model1->Position() - 20.0f*sun->Front());
 	if (_mainWindow.getsKeys()[GLFW_KEY_LEFT_CONTROL]) {
 		//__debugbreak();
 		std::cout << _this.Rotation();
@@ -172,21 +116,25 @@ void SCENE1_CAMERA_UPDATE(Entity& _this) {
 }
 void SCENE1_INIT(Scene& _this) {
 	model1 = &_this.AddEntity(glm::vec3(0, 0, -10), glm::vec3(0, 1, 0), glm::vec3(0.02f));
-	model1->AddModel("space_port_tunnel.obj");
+	model1->AddModel("../Models/space_port_tunnel.obj").ChangeMaterial(256,0.02f);
 	model1->AddScripts(SCENE1_ENTT1_RESET, SCENE1_ENTT1_UPDATE);
-
+	
 	camera = &_this.AddEntity(glm::vec3(0.0f), glm::vec3(0.0f, 180.0f, 0.0f), glm::vec3(1.0f));
 	camera->AddCamera(90.0f, ((float)_mainWindow.GetBufferWidth() / (float)_mainWindow.GetBufferHeight()), 0.1f, 100.0f);
 	camera->AddScripts(SCENE1_CAMERA_UPDATE);
 
-	Entity& Sun = _this.AddEntity(glm::vec3(0.0f), glm::vec3(45.0f, 45.0f, 0.0f), glm::vec3(1.0f));
-	Sun.AddSun(glm::vec3(1, 1, 1), 0.1f, 0.6f);
-	Sun.AddScripts(SCENE1_SUN_UPDATE);
+	sun = &_this.AddEntity(glm::vec3(0.0f), glm::vec3(45.0f, 45.0f, 0.0f), glm::vec3(1.0f));
+	sun->AddSun(glm::vec3(1, 1, 1), 0.05f, 0.3f);
+	sun->AddScripts(SCENE1_SUN_UPDATE);
 	
+	//PrePare To Render
 	Scene::ComponentCatalogue __this = _this.AllSceneComponentCatalogue();
 	for (const Scripts& script : *(__this.allScripts)) {
 		script.Reset();
 	}
+
+	//Initialize Locations
+	Material::SetLocationsInShaderProg(shaders[SHADER::COMMON].getLoc("material.specular_Int"), shaders[SHADER::COMMON].getLoc("material.shininess"));
 }
 void SCENE1_UPDATE(Scene& __this) {
 	Scene::ComponentCatalogue _this = __this.AllSceneComponentCatalogue();
@@ -207,9 +155,9 @@ void SCENE1_RENDER(Scene& __this) {
 	
 
 	shaders[SHADER::COMMON].Use();
-
+	shaders[SHADER::COMMON].SetVec3("eyePosition", _this.currCamera->Obj().Position());
 	_this.mainLight->ApplyLight(shaders[SHADER::COMMON].getLoc("mainLight.base.color"), shaders[SHADER::COMMON].getLoc("mainLight.base.ambient_Int"), shaders[SHADER::COMMON].getLoc("mainLight.base.diffuse_Int"), shaders[SHADER::COMMON].getLoc("mainLight.direction"));
-
+	
 	shaders[SHADER::COMMON].SetInt("diffuse_Tex", 1);//Linking to texture unit 1
 	shaders[SHADER::COMMON].SetMat4("projViewMat", _this.currCamera->ProjectionViewMatrix());
 
@@ -226,7 +174,7 @@ void SCENE1_RENDER(Scene& __this) {
 void PrePare() {
 	glfwPollEvents();
 	// Clear the window
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 int main() {
@@ -235,10 +183,10 @@ int main() {
 	
 	Scene Scene1(SCENE1_INIT, SCENE1_UPDATE, SCENE1_RENDER);
 
-	shaders[SHADER::COMMON].CreateFromString(vShader, fShader);
+	shaders[SHADER::COMMON].CreateFromFiles(vShader, fShader);
 	Scene1.Init();
 	while (!_mainWindow.ShouldClose()) {
-		
+
 		PrePare();
 
 		if (_mainWindow.getsKeys()[GLFW_KEY_ESCAPE])
@@ -250,7 +198,7 @@ int main() {
 
 		_mainWindow.swapBuffers();
 		_mainWindow.ResetKeys();
-		//Sleep(10);
+		Sleep(10);
 	}
     return 0;//_Main();
 }

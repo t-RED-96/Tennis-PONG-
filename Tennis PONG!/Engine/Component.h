@@ -17,6 +17,7 @@ public:
 	};
 	virtual void* getComponent() = 0;
 	virtual Type typ() = 0;
+	const Entity& Obj() const { return thisObj; };
 protected:
 	Entity& thisObj;
 	Component() = delete;

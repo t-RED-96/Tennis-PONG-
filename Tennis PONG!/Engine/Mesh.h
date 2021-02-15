@@ -10,6 +10,8 @@ private:
 	GLuint IBO;
 	GLuint indexCount;
 	std::vector<GLuint> dataVBOs;
+	glm::vec3 MinOfBoundingBox;
+	glm::vec3 MaxOfBoundingBox;
 public:
 	Mesh() = delete;
 	Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& indices, const std::vector<glm::vec2>& TextureCOords);
@@ -23,6 +25,10 @@ public:
 	void Render();
 	void Render(void(*_preRenderPrepare)(Mesh*));
 private:
+	template<typename BoundingBoxType>
+	void GenerateBoundingBox(const std::vector<BoundingBoxType>& positions);
+	template<unsigned char Attribute_Size>
+	static float* GenerateMinMaxAttrib(const float* const data, unsigned int size);
 	inline void CreateVAO();
 	void CreateIndexBuffer(const size_t* indices, size_t size);
 	void CreateFloatAttribute(unsigned char attributeIndexInShader,const float* const data, size_t dataSize, unsigned char attributeSize);
