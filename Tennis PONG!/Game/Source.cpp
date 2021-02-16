@@ -73,21 +73,21 @@ Entity* model1 = NULL;
 Entity* camera = NULL;
 Entity* sun = NULL;
 void SCENE1_ENTT1_UPDATE(Entity& _this) {
-	if (_mainWindow.getsKeys()[GLFW_KEY_B])
-		std::cout << _this.Front() << _this.Right() << _this.Up(),__debugbreak();
-	if (_mainWindow.getsKeys()[GLFW_KEY_L])
-		std::cout << _this.Front() << _this.Right() << _this.Up(), __debugbreak();
-	if (_mainWindow.getsKeys()[GLFW_KEY_8])
-		_this.Position(_this.Position() + 0.1f*_this.Front());
-	if (_mainWindow.getsKeys()[GLFW_KEY_2])
-		_this.Position(_this.Position() - 0.1f*_this.Front());
-	if (_mainWindow.getsKeys()[GLFW_KEY_6])
-		_this.Position(_this.Position() + 0.1f*_this.Right());
-	if (_mainWindow.getsKeys()[GLFW_KEY_4])
-		_this.Position(_this.Position() - 0.1f*_this.Right());
-	if (_mainWindow.getsKeys()[GLFW_KEY_5])
-		_this.Position(_this.Position() + 0.1f*_this.Up());
-	
+
+	static int i = (int)(Model::Pivot::Mid_Centre);
+	if (_mainWindow.getsKeys()[GLFW_KEY_8]) {
+		i++, _mainWindow.getsKeys().Set(GLFW_KEY_8, false);
+		i = i % (int)(Model::Pivot::TOTAL);
+		static_cast<Model*>(_this.GetComponent(Model::Typ))->ChangePivot((Model::Pivot)i);
+		std::cout <<"i: "<< i << std::endl;
+	}
+	if (_mainWindow.getsKeys()[GLFW_KEY_2]) {
+		i--, _mainWindow.getsKeys().Set(GLFW_KEY_2, false);
+		i = i % (int)(Model::Pivot::TOTAL);
+		static_cast<Model*>(_this.GetComponent(Model::Typ))->ChangePivot((Model::Pivot)i);
+		std::cout <<"i: "<< i << std::endl;
+	}
+
 }
 void SCENE1_CAMERA_UPDATE(Entity& _this) {
 	//if (_mainWindow.getsKeys()[GLFW_KEY_W])
@@ -135,6 +135,7 @@ void SCENE1_INIT(Scene& _this) {
 
 	//Initialize Locations
 	Material::SetLocationsInShaderProg(shaders[SHADER::COMMON].getLoc("material.specular_Int"), shaders[SHADER::COMMON].getLoc("material.shininess"));
+	Model::SetLocationsInShaderProg(shaders[SHADER::COMMON].getLoc("pivot"));
 }
 void SCENE1_UPDATE(Scene& __this) {
 	Scene::ComponentCatalogue _this = __this.AllSceneComponentCatalogue();

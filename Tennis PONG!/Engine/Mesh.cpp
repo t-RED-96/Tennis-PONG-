@@ -7,10 +7,10 @@ Mesh::Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& i
 	CreateFloatAttribute(0, (float*)(&positions[0].x), positions.size() * 3, 3);
 	CreateFloatAttribute(1, (float*)(&TextureCOords[0].x), TextureCOords.size() * 2, 2);
 	UnbindVAO();
+	GenerateBoundingBox(positions);
 }
 Mesh::Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& indices, const std::vector<glm::vec2>& TextureCOords, const std::vector<glm::vec3>& Normals)
 {
-	
 	CreateVAO();
 	BindVAO();
 	CreateIndexBuffer((size_t*)(&indices[0]), indices.size());
@@ -18,6 +18,7 @@ Mesh::Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& i
 	CreateFloatAttribute(1, (float*)(&TextureCOords[0].x), TextureCOords.size() * 2, 2);
 	CreateFloatAttribute(2, (float*)(&Normals[0].x), Normals.size() * 3, 3);
 	UnbindVAO();
+	GenerateBoundingBox(positions);
 }
 Mesh::Mesh(const float* const positions, size_t sizePositions, const size_t* const indices, size_t sizeIndices)
 {
@@ -26,6 +27,7 @@ Mesh::Mesh(const float* const positions, size_t sizePositions, const size_t* con
 	CreateIndexBuffer(indices, sizeIndices);
 	CreateFloatAttribute(0, positions, sizePositions, 3);
 	UnbindVAO();
+	GenerateBoundingBox<3>(positions,sizePositions);
 }
 Mesh::Mesh(const float* const positions, size_t size)
 	:IBO(0)
@@ -35,6 +37,7 @@ Mesh::Mesh(const float* const positions, size_t size)
 	CreateFloatAttribute(0, positions, size , 3);
 	indexCount = size;
 	UnbindVAO();
+	GenerateBoundingBox<3>(positions, size);
 }
 Mesh::~Mesh()
 {
@@ -49,12 +52,24 @@ void Mesh::GenerateBoundingBox(const std::vector<BoundingBoxType>& positions)
 		MinOfBoundingBox[i] = minMaxs[i];
 	}
 	for (unsigned char i = 0; i < Attrib_size;i++) {
-		MaxOfBoundingBox[i] = minMaxs[i + Attrib_size];
+		MaxOfBoundingBox[i] = minMaxs[Attrib_size + i];
 	}
 	delete[] minMaxs;
 }
 template<unsigned char Attribute_Size>
-float* Mesh::GenerateMinMaxAttrib(const float* const data,unsigned int size)
+void Mesh::GenerateBoundingBox(const float* const positions,const unsigned int size)
+{
+	float* minMaxs = GenerateMinMaxAttrib<Attribute_Size>(positions, (size/Attribute_Size));
+	for (unsigned char i = 0; i < Attribute_Size;i++) {
+		MinOfBoundingBox[i] = minMaxs[i];
+	}
+	for (unsigned char i = 0; i < Attribute_Size;i++) {
+		MaxOfBoundingBox[i] = minMaxs[i + Attribute_Size];
+	}
+	delete[] minMaxs;
+}
+template<unsigned char Attribute_Size>
+float* Mesh::GenerateMinMaxAttrib(const float* const data,const unsigned int size)
 {
 	float min[Attribute_Size];
 	float max[Attribute_Size];
@@ -62,7 +77,7 @@ float* Mesh::GenerateMinMaxAttrib(const float* const data,unsigned int size)
 		min[j] = data[j];
 		max[j] = data[j];
 	}
-	for (size_t i = Attribute_Size; i < size - Attribute_Size; i += Attribute_Size) {
+	for (size_t i = Attribute_Size; i < (size*Attribute_Size); i += Attribute_Size) {
 		for (size_t j = 0; j < Attribute_Size; j++) {
 			if (min[j] > data[i + j]) {
 				min[j] = data[i + j];
@@ -72,12 +87,10 @@ float* Mesh::GenerateMinMaxAttrib(const float* const data,unsigned int size)
 			}
 		}
 	}
-	float temp = new float[2 * Attribute_Size];
+	float* temp = new float[Attribute_Size*2];
 	for (size_t j = 0; j < Attribute_Size; j++) {
 		temp[j] = min[j];
-	}
-	for (size_t j = Attribute_Size; j < 2*Attribute_Size; j++) {
-		temp[j] = max[j];
+		temp[j + Attribute_Size] = max[j];
 	}
 	return temp;
 }

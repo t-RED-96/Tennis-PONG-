@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <GLM/glm.hpp>
 #include <vector>
+#include <tuple>
 #pragma once
 class Mesh
 {
@@ -24,11 +25,17 @@ public:
 	GLuint IndexCount() { return indexCount; }
 	void Render();
 	void Render(void(*_preRenderPrepare)(Mesh*));
+	std::tuple<glm::vec3, glm::vec3> GetMinMaxOfBoundingBox() { return { MinOfBoundingBox ,MaxOfBoundingBox }; }
 private:
 	template<typename BoundingBoxType>
 	void GenerateBoundingBox(const std::vector<BoundingBoxType>& positions);
+
 	template<unsigned char Attribute_Size>
-	static float* GenerateMinMaxAttrib(const float* const data, unsigned int size);
+	void GenerateBoundingBox(const float* const positions, const unsigned int size);
+	
+	template<unsigned char Attribute_Size>
+	static float* GenerateMinMaxAttrib(const float* const data, const unsigned int size);
+	
 	inline void CreateVAO();
 	void CreateIndexBuffer(const size_t* indices, size_t size);
 	void CreateFloatAttribute(unsigned char attributeIndexInShader,const float* const data, size_t dataSize, unsigned char attributeSize);

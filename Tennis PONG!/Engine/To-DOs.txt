@@ -9,6 +9,11 @@
     Day 6 15-02-2021{
         Found Extremly Idiotic Mistake, while generating Mesh I Was not passing Normals to mesh;
         Moving on to specular lighting.
+        completed specular Lighting
+        Started Work On BoundingBox For Every Mesh(Rightnow for Pivoting Models).
+    }
+    Day 7 16-02-2021{
+        Completed BoundingBox Deployment as Two extreme Ponits On Local Axis
     }
  }
  + Directional Shadows(Only)
