@@ -36,6 +36,12 @@
 #- MarkDown .md files
 !*.md
 
+#- Shader files
+!*.vert
+!*.geom
+!*.frag
+!*.glsl
+
 #- Ignore Debug Folder
 Tennis PONG!/Debug/*
 Tennis PONG!/Release/*
