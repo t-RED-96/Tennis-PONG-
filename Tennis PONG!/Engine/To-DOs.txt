@@ -1,22 +1,29 @@
 ﻿WorkFlow: (This is an Idea Dump too)
- + Phong Lighting Model( Write Sun class (Directional Light) )
- {
-    To Put Simply Ambient->Diffuse-->Specular(ReQuires MATERIAL CLASS, This New Class Will Have Texture Data Insted Of Model,While Model is Having Material)
-    Day 1 10-02-2021{
-        Browsing Through Youtube While Wsating time.
-        {brightness In Shader, Min Of Color passed out from frag Shader will be determined By Brightness controlled by ambient,diffuse,specular (Later will be dampened by shadow; FOG has different color so after dampning brightness, the color it will be faded/mixed by fog's-color)}
-    }
-    Day 6 15-02-2021{
-        Found Extremly Idiotic Mistake, while generating Mesh I Was not passing Normals to mesh;
-        Moving on to specular lighting.
-        completed specular Lighting
-        Started Work On BoundingBox For Every Mesh(Rightnow for Pivoting Models).
-    }
-    Day 7 16-02-2021{
-        Completed BoundingBox Deployment as Two extreme Ponits On Local Axis
-    }
+ + Directional Shadows(Only){                                                            /Z axis
+    I'll be Postponing it for now, Slowlyworking On theory first.          .------------/---.                 ___________
+                                                                          / \  yaxis   /   /|                /__________/|
+                /\``````````````````````/\           C is Camera         /___;___|____;___/ /                |   y|/z  | |
+               /  \                    /  \                              \    \  |   /   / /     ->          |  --O--x | | 
+              /    \                  /    \                              \   /'-|--/---/-/                  |   /|    | |
+             /      \                /      \                              \ /   | /   /.*                   |_________|/
+            /________\_____________ /        \                 _____________*====|=====;_________X-axis
+           C\.        \             \         \                                 /C               
+             \_________\,,,,,,,,,,,,,\_________\                               /
+        We know that perspective projection is frustum, so why not create a fitting (1st figure) shape to project in shadow mapping, It will Solve to 2 biggest problem of shadow mapping(without cutting on corners for each other),
+        That are resolution and Speed (Which will be compromised even if I'm using multiple orthographic projection of varying sizes according to distance, beacause i'll be using multiple render PASSES)
+        So for it i'll need free-mind which somwhat hard since in few days T1 of college's 4th sem will be held
+        But After creating projection matrix how to proceed further, how are shadows even rendered.
+    DIRECTIONAL Shadow Render Pass:
+        Step 1- Creating framebuffer for directional shadow render pass, creating a new texture, use them to render world from sun's perspective(remember altough we are saying rendering from sun perspective, in our case sun will be determined by camera position,direction{we are not rendering entire world})
+        Step 2- (Done before rendering world/using directional shadow pass) bind the created texture to framebuffer for being written to, setup framebuffer to write depth values to the binded Texture.
+        Step 3- Apply Render pass.
+        Step 4- In Main render pass, {All Inside Fragment Shader}use the sun projection matrix & check whether the point is inside area of opengl coordinate space(i.e was it inside when depth values were being written) if it is then we check the resultant depth(Z) value of resultant position(After multiplying with [sun's projection Matrix]*[view matrix from sun]*position),
+            Campare it with depth value inside that xy position of texture created by directional shadow pass, if its camparable i.e then the point will have diffuse light applied to it otherwise the point is in shadow(only ambient Light)
+    The MATRIX:
+     sun 0       /\scene        View Matix: 
+              /\/  \.
+         ____/__\__/^\
  }
- + Directional Shadows(Only)
 ===
  Learn animation in Blender to understand different animation types
 ===

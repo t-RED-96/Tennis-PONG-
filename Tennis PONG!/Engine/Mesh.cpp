@@ -11,6 +11,7 @@ Mesh::Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& i
 }
 Mesh::Mesh(const std::vector<glm::vec3>& positions, const std::vector<size_t>& indices, const std::vector<glm::vec2>& TextureCOords, const std::vector<glm::vec3>& Normals)
 {
+	this;
 	CreateVAO();
 	BindVAO();
 	CreateIndexBuffer((size_t*)(&indices[0]), indices.size());

@@ -23,7 +23,14 @@ bool Texture::LoadTexture(bool withAlpha) {
 	unsigned char* texData = stbi_load(fileLocation.c_str(), &width, &height, &bitDepth, 0);
 	if (!texData) {
 		std::cout << "failed to find : " << fileLocation << std::endl;
-		return false;
+		fileLocation = "../Textures/" + fileLocation;
+		std::cout << "Changing Dir to: ../Textures/" << std::endl;
+
+		texData = stbi_load(fileLocation.c_str(), &width, &height, &bitDepth, 0);
+		if (!texData) {
+			std::cout << "failed to find : " << fileLocation << std::endl;
+			return false;
+		}
 	}
 	glGenTextures(1, &textureID);
 	glActiveTexture(GL_TEXTURE0);
