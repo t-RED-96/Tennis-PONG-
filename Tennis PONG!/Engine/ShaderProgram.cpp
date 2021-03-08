@@ -109,7 +109,7 @@ void ShaderProgram::CompileShader(const char* vertexCode, const char* geometryCo
 	LinkProgram();
 }
 
-void ShaderProgram::Validate()
+void ShaderProgram::Validate()const
 {
 	GLint result = 0;
 	GLchar eLog[1024] = { 0 };

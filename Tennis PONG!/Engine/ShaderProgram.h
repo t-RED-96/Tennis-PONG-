@@ -20,9 +20,9 @@ public:
 
 	void CreateFromString(const char* vertexCode, const char* fragmentCode);
 
-	void Validate();
+	void Validate()const;
 
-	GLuint GetProgramID() { return ID; }
+	const GLuint GetProgramID() const{ return ID; }
 
 	void ClearShader();
 
@@ -30,12 +30,12 @@ public:
 
 	// activate deactivate the shader
 	// ------------------------------------------------------------------------
-	void Use()
+	void Use() const
 	{
 		glUseProgram(ID);
 	}
 	// ------------------------------------------------------------------------
-	static void Stop() {
+	static void Stop(){
 		glUseProgram(0);
 	}
 	// get uniform Location functions

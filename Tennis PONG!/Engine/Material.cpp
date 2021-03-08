@@ -39,7 +39,7 @@ void Material::Load(bool loadTexWithAlpha)
 	{
 		printf("Failed to load texture at %s\n", tex->GetTextureLocationInDisk().c_str());
 		delete tex;
-		tex = new Texture("../Texture/plain.png");
+		tex = new Texture("../Textures/plain.png");
 		tex->LoadTexture(false);
 	}
 }
