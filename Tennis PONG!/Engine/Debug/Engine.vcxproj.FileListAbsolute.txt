@@ -1,2 +1,0 @@
-C:\Users\lalis\Desktop\Tennis PONG!\Tennis PONG!\Debug\Engine.pdb
-C:\Users\lalis\Desktop\Tennis PONG!\Tennis PONG!\Engine\Debug\Engine.pdb
